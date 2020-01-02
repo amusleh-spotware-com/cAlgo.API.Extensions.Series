@@ -18,6 +18,23 @@ namespace cAlgo.API.Extensions.Models
 
         public double Volume { get; set; }
 
-        public BarType Type { get; set; }
+        public BarType Type
+        {
+            get
+            {
+                if (Open < Close)
+                {
+                    return BarType.Bullish;
+                }
+                else if (Open > Close)
+                {
+                    return BarType.Bearish;
+                }
+                else
+                {
+                    return BarType.Neutral;
+                }
+            }
+        }
     }
 }
