@@ -12,9 +12,9 @@ namespace cAlgo.API.Extensions.Series.Helpers
         /// </summary>
         /// <param name="marketSeries"></param>
         /// <returns>int</returns>
-        public static int GetIndex(this MarketSeries marketSeries)
+        public static int GetIndex(this Bars marketSeries)
         {
-            return marketSeries.Close.Count > 0 ? marketSeries.Close.Count - 1 : marketSeries.Close.Count;
+            return marketSeries.ClosePrices.Count > 0 ? marketSeries.ClosePrices.Count - 1 : marketSeries.ClosePrices.Count;
         }
 
         /// <summary>
@@ -23,13 +23,13 @@ namespace cAlgo.API.Extensions.Series.Helpers
         /// <param name="marketSeries"></param>
         /// <param name="index">Index of bar</param>
         /// <returns>BarType</returns>
-        public static BarType GetBarType(this MarketSeries marketSeries, int index)
+        public static BarType GetBarType(this Bars marketSeries, int index)
         {
-            if (marketSeries.Close[index] > marketSeries.Open[index])
+            if (marketSeries.ClosePrices[index] > marketSeries.OpenPrices[index])
             {
                 return BarType.Bullish;
             }
-            else if (marketSeries.Close[index] < marketSeries.Open[index])
+            else if (marketSeries.ClosePrices[index] < marketSeries.OpenPrices[index])
             {
                 return BarType.Bearish;
             }
@@ -46,10 +46,10 @@ namespace cAlgo.API.Extensions.Series.Helpers
         /// <param name="index">Bar index in market series</param>
         /// <param name="useBarBody">Use bar open and close price instead of high and low?</param>
         /// <returns>double</returns>
-        public static double GetBarRange(this MarketSeries marketSeries, int index, bool useBarBody = false)
+        public static double GetBarRange(this Bars marketSeries, int index, bool useBarBody = false)
         {
-            return useBarBody ? Math.Abs(marketSeries.Open[index] - marketSeries.Close[index])
-                : marketSeries.High[index] - marketSeries.Low[index];
+            return useBarBody ? Math.Abs(marketSeries.OpenPrices[index] - marketSeries.ClosePrices[index])
+                : marketSeries.HighPrices[index] - marketSeries.LowPrices[index];
         }
 
         /// <summary>
@@ -58,33 +58,33 @@ namespace cAlgo.API.Extensions.Series.Helpers
         /// <param name="marketSeries">The market series</param>
         /// <param name="seriesType">Series type</param>
         /// <returns>DataSeries</returns>
-        public static DataSeries GetSeries(this MarketSeries marketSeries, SeriesType seriesType)
+        public static DataSeries GetSeries(this Bars marketSeries, SeriesType seriesType)
         {
             switch (seriesType)
             {
                 case SeriesType.Open:
-                    return marketSeries.Open;
+                    return marketSeries.OpenPrices;
 
                 case SeriesType.High:
-                    return marketSeries.High;
+                    return marketSeries.HighPrices;
 
                 case SeriesType.Low:
-                    return marketSeries.Low;
+                    return marketSeries.LowPrices;
 
                 case SeriesType.Close:
-                    return marketSeries.Close;
+                    return marketSeries.ClosePrices;
 
                 case SeriesType.Median:
-                    return marketSeries.Median;
+                    return marketSeries.MedianPrices;
 
                 case SeriesType.TickVolume:
-                    return marketSeries.TickVolume;
+                    return marketSeries.TickVolumes;
 
                 case SeriesType.Typical:
-                    return marketSeries.Typical;
+                    return marketSeries.TypicalPrices;
 
                 case SeriesType.WeightedClose:
-                    return marketSeries.WeightedClose;
+                    return marketSeries.WeightedPrices;
 
                 default:
                     return null;
@@ -97,17 +97,17 @@ namespace cAlgo.API.Extensions.Series.Helpers
         /// <param name="marketSeries">Market series</param>
         /// <param name="index">The bar index in market series</param>
         /// <returns>Bar</returns>
-        public static OhlcBar GetBar(this MarketSeries marketSeries, int index)
+        public static OhlcBar GetBar(this Bars marketSeries, int index)
         {
-            var result = marketSeries.Close.Count > index ? new OhlcBar
+            var result = marketSeries.ClosePrices.Count > index ? new OhlcBar
             {
                 Index = index,
-                Time = marketSeries.OpenTime[index],
-                Open = marketSeries.Open[index],
-                High = marketSeries.High[index],
-                Low = marketSeries.Low[index],
-                Close = marketSeries.Close[index],
-                Volume = marketSeries.TickVolume[index],
+                Time = marketSeries.OpenTimes[index],
+                Open = marketSeries.OpenPrices[index],
+                High = marketSeries.HighPrices[index],
+                Low = marketSeries.LowPrices[index],
+                Close = marketSeries.ClosePrices[index],
+                Volume = marketSeries.TickVolumes[index],
             } : null;
 
             return result;

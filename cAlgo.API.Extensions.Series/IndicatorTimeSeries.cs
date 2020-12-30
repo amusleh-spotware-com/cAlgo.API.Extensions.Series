@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -98,17 +99,27 @@ namespace cAlgo.API.Extensions.Series
             }
         }
 
-        /*
         public IEnumerator<DateTime> GetEnumerator()
         {
-            return _series.GetEnumerator();
+            throw new NotImplementedException();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _series.GetEnumerator();
+            throw new NotImplementedException();
         }
-        */
+
+
+        //public IEnumerator<DateTime> GetEnumerator()
+        //{
+        //    return _series.GetEnumerator();
+        //}
+
+        //IEnumerator IEnumerable.GetEnumerator()
+        //{
+        //    return _series.GetEnumerator();
+        //}
+
 
         #endregion Methods
     }

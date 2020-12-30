@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace cAlgo.API.Extensions.Series
@@ -27,11 +28,21 @@ namespace cAlgo.API.Extensions.Series
 
         public int Count => _data.Count;
 
+        public IEnumerator<double> GetEnumerator()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public double Last(int lastIndex)
         {
             int index = (Count - 1) - lastIndex;
 
             return this[index];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -4,10 +4,12 @@ using cAlgo.API.Extensions.Series.Helpers;
 using cAlgo.API.Indicators;
 using cAlgo.API.Internals;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace cAlgo.API.Extensions.Series
 {
-    public class IndicatorMarketSeries : MarketSeries
+    public class IndicatorMarketSeries : Bars
     {
         #region Fields
 
@@ -20,6 +22,11 @@ namespace cAlgo.API.Extensions.Series
         private readonly TimeFrame _timeFrame;
 
         private readonly string _symbolName;
+
+        public event Action<BarsHistoryLoadedEventArgs> HistoryLoaded;
+        public event Action<BarsHistoryLoadedEventArgs> Reloaded;
+        public event Action<BarsTickEventArgs> Tick;
+        public event Action<BarOpenedEventArgs> BarOpened;
 
         #endregion Fields
 
@@ -193,6 +200,30 @@ namespace cAlgo.API.Extensions.Series
             }
         }
 
+        public Bar LastBar => throw new NotImplementedException();
+
+        public int Count => throw new NotImplementedException();
+
+        public DataSeries OpenPrices => throw new NotImplementedException();
+
+        public DataSeries HighPrices => throw new NotImplementedException();
+
+        public DataSeries LowPrices => throw new NotImplementedException();
+
+        public DataSeries ClosePrices => throw new NotImplementedException();
+
+        public DataSeries TickVolumes => throw new NotImplementedException();
+
+        public DataSeries MedianPrices => throw new NotImplementedException();
+
+        public DataSeries TypicalPrices => throw new NotImplementedException();
+
+        public DataSeries WeightedPrices => throw new NotImplementedException();
+
+        public TimeSeries OpenTimes => throw new NotImplementedException();
+
+        public Bar this[int index] => throw new NotImplementedException();
+
         #endregion Properties
 
         #region Methods
@@ -221,32 +252,32 @@ namespace cAlgo.API.Extensions.Series
             }
         }
 
-        public void CalculateHeikenAshi(MarketSeries marketSeries, int index, int periods = 1)
+        public void CalculateHeikenAshi(Bars marketSeries, int index, int periods = 1)
         {
-            int seriesIndex = marketSeries.OpenTime.GetIndexByTime(marketSeries.OpenTime[index]);
+            int seriesIndex = marketSeries.OpenTimes.GetIndexByTime(marketSeries.OpenTimes[index]);
 
-            double barOhlcSum = marketSeries.Open[seriesIndex] + marketSeries.Low[seriesIndex] +
-                marketSeries.High[seriesIndex] + marketSeries.Close[seriesIndex];
+            double barOhlcSum = marketSeries.OpenPrices[seriesIndex] + marketSeries.LowPrices[seriesIndex] +
+                marketSeries.HighPrices[seriesIndex] + marketSeries.ClosePrices[seriesIndex];
 
             _close[seriesIndex] = _algo.Symbol.Round(barOhlcSum / 4);
 
             if (_open.Count < periods || double.IsNaN(_open[seriesIndex - 1]))
             {
-                _open[seriesIndex] = _algo.Symbol.Round((marketSeries.Open[seriesIndex] + marketSeries.Close[seriesIndex]) / 2);
-                _high[seriesIndex] = marketSeries.High[seriesIndex];
-                _low[seriesIndex] = marketSeries.Low[seriesIndex];
+                _open[seriesIndex] = _algo.Symbol.Round((marketSeries.OpenPrices[seriesIndex] + marketSeries.ClosePrices[seriesIndex]) / 2);
+                _high[seriesIndex] = marketSeries.HighPrices[seriesIndex];
+                _low[seriesIndex] = marketSeries.LowPrices[seriesIndex];
             }
             else
             {
                 _open[seriesIndex] = _algo.Symbol.Round((_open[seriesIndex - periods] + _close[seriesIndex - periods]) / 2);
-                _high[seriesIndex] = Math.Max(marketSeries.High[seriesIndex], Math.Max(_open[seriesIndex], _close[seriesIndex]));
-                _low[seriesIndex] = Math.Min(marketSeries.Low[seriesIndex], Math.Min(_open[seriesIndex], _close[seriesIndex]));
+                _high[seriesIndex] = Math.Max(marketSeries.HighPrices[seriesIndex], Math.Max(_open[seriesIndex], _close[seriesIndex]));
+                _low[seriesIndex] = Math.Min(marketSeries.LowPrices[seriesIndex], Math.Min(_open[seriesIndex], _close[seriesIndex]));
             }
         }
 
-        public void CalculateHeikenAshi(MarketSeries marketSeries, int index, int maPeriods, MovingAverageType maType, int periods = 1)
+        public void CalculateHeikenAshi(Bars marketSeries, int index, int maPeriods, MovingAverageType maType, int periods = 1)
         {
-            int seriesIndex = marketSeries.OpenTime.GetIndexByTime(marketSeries.OpenTime[index]);
+            int seriesIndex = marketSeries.OpenTimes.GetIndexByTime(marketSeries.OpenTimes[index]);
 
             if (seriesIndex <= maPeriods)
             {
@@ -275,13 +306,43 @@ namespace cAlgo.API.Extensions.Series
         }
 
         public double GetSeriesMovingAverageValue(
-            MarketSeries marketSeries, SeriesType seriesType, int periods, MovingAverageType type, int index)
+            Bars marketSeries, SeriesType seriesType, int periods, MovingAverageType type, int index)
         {
             DataSeries series = marketSeries.GetSeries(seriesType);
 
             MovingAverage ma = _algo.Indicators.MovingAverage(series, periods, type);
 
             return ma.Result[index];
+        }
+
+        public Bar Last(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int LoadMoreHistory()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadMoreHistoryAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadMoreHistoryAsync(Action<BarsHistoryLoadedEventArgs> callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<Bar> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion Methods
