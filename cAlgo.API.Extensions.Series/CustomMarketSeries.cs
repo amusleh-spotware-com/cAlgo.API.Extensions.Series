@@ -9,7 +9,7 @@ namespace cAlgo.API.Extensions.Series
     {
         #region Fields
 
-        private readonly MarketSeries _marketSeries;
+        private readonly Bars _marketSeries;
 
         private readonly TimeSpan _gmtOffset, _timeFrameSpan, _marketSeriesTimeFrameSpan;
 
@@ -21,7 +21,7 @@ namespace cAlgo.API.Extensions.Series
 
         #endregion Fields
 
-        public CustomMarketSeries(MarketSeries marketSeries, TimeFrame timeFrame, TimeSpan gmtOffset) : base(timeFrame, marketSeries.SymbolName)
+        public CustomMarketSeries(Bars marketSeries, TimeFrame timeFrame, TimeSpan gmtOffset) : base(timeFrame, marketSeries.SymbolName)
         {
             _marketSeries = marketSeries;
 
@@ -42,7 +42,7 @@ namespace cAlgo.API.Extensions.Series
 
         public DateTime BarEndTime => _barEndTime;
 
-        public OhlcBar LastBar => _lastBar;
+        public new OhlcBar LastBar => _lastBar;
 
         public Action<string> Print { get; set; }
 
@@ -52,21 +52,21 @@ namespace cAlgo.API.Extensions.Series
 
         public void Calculate(int barIndex)
         {
-            DateTime barOpenTime = _marketSeries.OpenTime[barIndex].Add(-_gmtOffset);
+            DateTime barOpenTime = _marketSeries.OpenTimes[barIndex].Add(-_gmtOffset);
 
             if (_lastBar == null || barOpenTime >= _nextBarTime)
             {
                 _barStartIndex = barIndex;
                 _barEndIndex = barIndex + 1;
 
-                _barStartTime = _marketSeries.OpenTime[_barStartIndex];
-                _barEndTime = _marketSeries.OpenTime[_barStartIndex].Add(_marketSeriesTimeFrameSpan);
+                _barStartTime = _marketSeries.OpenTimes[_barStartIndex];
+                _barEndTime = _marketSeries.OpenTimes[_barStartIndex].Add(_marketSeriesTimeFrameSpan);
 
                 _lastBar = new OhlcBar
                 {
-                    Open = _marketSeries.Open[barIndex],
+                    Open = _marketSeries.OpenPrices[barIndex],
                     Index = Index + 1,
-                    Time = _marketSeries.OpenTime[barIndex].Add(-_gmtOffset)
+                    Time = _marketSeries.OpenTimes[barIndex].Add(-_gmtOffset)
                 };
 
                 _nextBarTime = _lastBar.Time.Add(_timeFrameSpan);
@@ -74,12 +74,12 @@ namespace cAlgo.API.Extensions.Series
             else
             {
                 _barEndIndex = barIndex + 1;
-                _barEndTime = _marketSeries.OpenTime[barIndex].Add(_marketSeriesTimeFrameSpan);
+                _barEndTime = _marketSeries.OpenTimes[barIndex].Add(_marketSeriesTimeFrameSpan);
             }
 
-            _lastBar.High = _marketSeries.High.Maximum(_barStartIndex, barIndex);
-            _lastBar.Low = _marketSeries.Low.Minimum(_barStartIndex, barIndex);
-            _lastBar.Close = _marketSeries.Close[barIndex];
+            _lastBar.High = _marketSeries.HighPrices.Maximum(_barStartIndex, barIndex);
+            _lastBar.Low = _marketSeries.LowPrices.Minimum(_barStartIndex, barIndex);
+            _lastBar.Close = _marketSeries.ClosePrices[barIndex];
 
             Insert(_lastBar);
         }
