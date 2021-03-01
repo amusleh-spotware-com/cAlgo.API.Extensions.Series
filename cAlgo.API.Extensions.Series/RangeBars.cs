@@ -6,7 +6,7 @@ using System;
 
 namespace cAlgo.API.Extensions.Series
 {
-    public class RenkoMarketSeries : IndicatorMarketSeries
+    public class RangeBars : IndicatorBars
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace cAlgo.API.Extensions.Series
 
         #endregion Fields
 
-        public RenkoMarketSeries(double sizeInPips, Symbol symbol, Algo algo) : base(TimeFrame.Minute, symbol.Name, new IndicatorTimeSeries(), algo)
+        public RangeBars(double sizeInPips, Symbol symbol, Algo algo) : base(TimeFrame.Minute, symbol.Name, new IndicatorTimeSeries(), algo)
         {
             _symbol = symbol;
 
@@ -50,22 +50,22 @@ namespace cAlgo.API.Extensions.Series
 
             _previousBidPrice = price;
 
-            if (double.IsNaN(Open.LastValue))
+            if (double.IsNaN(OpenPrices.LastValue))
             {
                 Insert(0, price, price, price, price, 0, Algo.Server.TimeInUtc);
             }
 
             double range = Math.Abs(this.GetBarRange(Index, true));
 
-            if ((range >= _size && (Index == 0 || this.GetBarType(Index) == this.GetBarType(Index - 1))) || (range >= _size * 2))
+            if (range >= _size)
             {
                 OhlcBar bar = new OhlcBar
                 {
                     Index = Index + 1,
-                    Open = Close[Index],
-                    High = Close[Index],
-                    Low = Close[Index],
-                    Close = Close[Index],
+                    Open = ClosePrices[Index],
+                    High = ClosePrices[Index],
+                    Low = ClosePrices[Index],
+                    Close = ClosePrices[Index],
                     Volume = 0,
                     Time = Algo.Server.TimeInUtc
                 };
@@ -75,16 +75,16 @@ namespace cAlgo.API.Extensions.Series
                 OnBar?.Invoke(this, bar, this.GetBar(Index - 1));
             }
 
-            Insert(Index, TickVolume.LastValue + 1, SeriesType.TickVolume);
+            Insert(Index, TickVolumes.LastValue + 1, SeriesType.TickVolume);
 
             Insert(Index, price, SeriesType.Close);
 
-            if (price > High[Index])
+            if (price > HighPrices[Index])
             {
                 Insert(Index, price, SeriesType.High);
             }
 
-            if (price < Low[Index])
+            if (price < LowPrices[Index])
             {
                 Insert(Index, price, SeriesType.Low);
             }

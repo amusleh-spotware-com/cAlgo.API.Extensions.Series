@@ -6,70 +6,88 @@ using cAlgo.API.Internals;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace cAlgo.API.Extensions.Series
 {
-    public class IndicatorMarketSeries : Bars
+    public class IndicatorBars : Bars
     {
         #region Fields
 
         private readonly Algo _algo;
 
-        private readonly IndicatorDataSeries _open, _close, _high, _low, _tickVolume, _median, _typical, _weighted, _weightedClose;
+        private readonly IndicatorDataSeries _openPrices;
 
-        private readonly TimeSeries _openTime;
+        private readonly IndicatorDataSeries _closePrices;
+
+        private readonly IndicatorDataSeries _highPrices;
+
+        private readonly IndicatorDataSeries _lowPrices;
+
+        private readonly IndicatorDataSeries _tickVolumes;
+
+        private readonly IndicatorDataSeries _medianPrices;
+
+        private readonly IndicatorDataSeries _typicalPrices;
+
+        private readonly IndicatorDataSeries _weightedPrices;
+
+        private readonly TimeSeries _openTimes;
+
+        private readonly Dictionary<int, Bar> _bars = new Dictionary<int, Bar>();
 
         private readonly TimeFrame _timeFrame;
 
         private readonly string _symbolName;
 
         public event Action<BarsHistoryLoadedEventArgs> HistoryLoaded;
+
         public event Action<BarsHistoryLoadedEventArgs> Reloaded;
+
         public event Action<BarsTickEventArgs> Tick;
+
         public event Action<BarOpenedEventArgs> BarOpened;
 
         #endregion Fields
 
         #region Constructor
 
-        public IndicatorMarketSeries(TimeFrame timeFrame, string symbolName)
+        public IndicatorBars(TimeFrame timeFrame, string symbolName)
         {
-            _open = new CustomDataSeries();
-            _close = new CustomDataSeries();
-            _high = new CustomDataSeries();
-            _low = new CustomDataSeries();
-            _tickVolume = new CustomDataSeries();
-            _median = new CustomDataSeries();
-            _typical = new CustomDataSeries();
-            _weighted = new CustomDataSeries();
-            _weightedClose = new CustomDataSeries();
+            _openPrices = new CustomDataSeries();
+            _closePrices = new CustomDataSeries();
+            _highPrices = new CustomDataSeries();
+            _lowPrices = new CustomDataSeries();
+            _tickVolumes = new CustomDataSeries();
+            _medianPrices = new CustomDataSeries();
+            _typicalPrices = new CustomDataSeries();
+            _weightedPrices = new CustomDataSeries();
 
-            _openTime = new IndicatorTimeSeries();
+            _openTimes = new IndicatorTimeSeries();
 
             _timeFrame = timeFrame;
 
             _symbolName = symbolName;
         }
 
-        public IndicatorMarketSeries(TimeFrame timeFrame, string symbolName, Algo algo) : this(timeFrame, symbolName, new IndicatorTimeSeries(), algo)
+        public IndicatorBars(TimeFrame timeFrame, string symbolName, Algo algo) : this(timeFrame, symbolName, new IndicatorTimeSeries(), algo)
         {
         }
 
-        public IndicatorMarketSeries(TimeFrame timeFrame, string symbolName, TimeSeries timeSeries, Algo algo)
+        public IndicatorBars(TimeFrame timeFrame, string symbolName, TimeSeries timeSeries, Algo algo)
         {
             _algo = algo;
 
-            _open = algo.CreateDataSeries();
-            _close = algo.CreateDataSeries();
-            _high = algo.CreateDataSeries();
-            _low = algo.CreateDataSeries();
-            _tickVolume = algo.CreateDataSeries();
-            _median = algo.CreateDataSeries();
-            _typical = algo.CreateDataSeries();
-            _weighted = algo.CreateDataSeries();
-            _weightedClose = algo.CreateDataSeries();
+            _openPrices = algo.CreateDataSeries();
+            _closePrices = algo.CreateDataSeries();
+            _highPrices = algo.CreateDataSeries();
+            _lowPrices = algo.CreateDataSeries();
+            _tickVolumes = algo.CreateDataSeries();
+            _medianPrices = algo.CreateDataSeries();
+            _typicalPrices = algo.CreateDataSeries();
+            _weightedPrices = algo.CreateDataSeries();
 
-            _openTime = timeSeries;
+            _openTimes = timeSeries;
 
             _timeFrame = timeFrame;
 
@@ -88,83 +106,75 @@ namespace cAlgo.API.Extensions.Series
             }
         }
 
-        public DataSeries Open
+        public DataSeries OpenPrices
         {
             get
             {
-                return _open;
+                return _openPrices;
             }
         }
 
-        public DataSeries High
+        public DataSeries HighPrices
         {
             get
             {
-                return _high;
+                return _highPrices;
             }
         }
 
-        public DataSeries Low
+        public DataSeries LowPrices
         {
             get
             {
-                return _low;
+                return _lowPrices;
             }
         }
 
-        public DataSeries Close
+        public DataSeries ClosePrices
         {
             get
             {
-                return _close;
+                return _closePrices;
             }
         }
 
-        public DataSeries TickVolume
+        public DataSeries TickVolumes
         {
             get
             {
-                return _tickVolume;
+                return _tickVolumes;
             }
         }
 
-        public DataSeries Median
+        public DataSeries MedianPrices
         {
             get
             {
-                return _median;
+                return _medianPrices;
             }
         }
 
-        public DataSeries Typical
+        public DataSeries TypicalPrices
         {
             get
             {
-                return _typical;
+                return _typicalPrices;
             }
         }
 
-        public DataSeries Weighted
+        public DataSeries WeightedPrices
         {
             get
             {
-                return _weighted;
+                return _weightedPrices;
             }
         }
 
-        public DataSeries WeightedClose
+        public TimeSeries OpenTimes
         {
             get
             {
-                return _weightedClose;
-            }
-        }
-
-        public TimeSeries OpenTime
-        {
-            get
-            {
-                return _openTime;
+                return _openTimes;
             }
         }
 
@@ -180,7 +190,7 @@ namespace cAlgo.API.Extensions.Series
         {
             get
             {
-                return Close.Count - 1;
+                return ClosePrices.Count - 1;
             }
         }
 
@@ -200,29 +210,11 @@ namespace cAlgo.API.Extensions.Series
             }
         }
 
-        public Bar LastBar => throw new NotImplementedException();
+        public Bar LastBar => _bars[_bars.Keys.Max()];
 
-        public int Count => throw new NotImplementedException();
+        public int Count => ClosePrices.Count;
 
-        public DataSeries OpenPrices => throw new NotImplementedException();
-
-        public DataSeries HighPrices => throw new NotImplementedException();
-
-        public DataSeries LowPrices => throw new NotImplementedException();
-
-        public DataSeries ClosePrices => throw new NotImplementedException();
-
-        public DataSeries TickVolumes => throw new NotImplementedException();
-
-        public DataSeries MedianPrices => throw new NotImplementedException();
-
-        public DataSeries TypicalPrices => throw new NotImplementedException();
-
-        public DataSeries WeightedPrices => throw new NotImplementedException();
-
-        public TimeSeries OpenTimes => throw new NotImplementedException();
-
-        public Bar this[int index] => throw new NotImplementedException();
+        public Bar this[int index] => _bars[index];
 
         #endregion Properties
 
@@ -246,9 +238,9 @@ namespace cAlgo.API.Extensions.Series
             Insert(index, close, SeriesType.Close);
             Insert(index, volume, SeriesType.TickVolume);
 
-            if (_openTime is IndicatorTimeSeries)
+            if (_openTimes is IndicatorTimeSeries)
             {
-                (_openTime as IndicatorTimeSeries).Insert(index, openTime);
+                (_openTimes as IndicatorTimeSeries).Insert(index, openTime);
             }
         }
 
@@ -259,19 +251,19 @@ namespace cAlgo.API.Extensions.Series
             double barOhlcSum = marketSeries.OpenPrices[seriesIndex] + marketSeries.LowPrices[seriesIndex] +
                 marketSeries.HighPrices[seriesIndex] + marketSeries.ClosePrices[seriesIndex];
 
-            _close[seriesIndex] = _algo.Symbol.Round(barOhlcSum / 4);
+            _closePrices[seriesIndex] = _algo.Symbol.Round(barOhlcSum / 4);
 
-            if (_open.Count < periods || double.IsNaN(_open[seriesIndex - 1]))
+            if (OpenPrices.Count < periods || double.IsNaN(_openPrices[seriesIndex - 1]))
             {
-                _open[seriesIndex] = _algo.Symbol.Round((marketSeries.OpenPrices[seriesIndex] + marketSeries.ClosePrices[seriesIndex]) / 2);
-                _high[seriesIndex] = marketSeries.HighPrices[seriesIndex];
-                _low[seriesIndex] = marketSeries.LowPrices[seriesIndex];
+                _openPrices[seriesIndex] = _algo.Symbol.Round((marketSeries.OpenPrices[seriesIndex] + marketSeries.ClosePrices[seriesIndex]) / 2);
+                _highPrices[seriesIndex] = marketSeries.HighPrices[seriesIndex];
+                _lowPrices[seriesIndex] = marketSeries.LowPrices[seriesIndex];
             }
             else
             {
-                _open[seriesIndex] = _algo.Symbol.Round((_open[seriesIndex - periods] + _close[seriesIndex - periods]) / 2);
-                _high[seriesIndex] = Math.Max(marketSeries.HighPrices[seriesIndex], Math.Max(_open[seriesIndex], _close[seriesIndex]));
-                _low[seriesIndex] = Math.Min(marketSeries.LowPrices[seriesIndex], Math.Min(_open[seriesIndex], _close[seriesIndex]));
+                _openPrices[seriesIndex] = _algo.Symbol.Round((_openPrices[seriesIndex - periods] + _closePrices[seriesIndex - periods]) / 2);
+                _highPrices[seriesIndex] = Math.Max(marketSeries.HighPrices[seriesIndex], Math.Max(_openPrices[seriesIndex], _closePrices[seriesIndex]));
+                _lowPrices[seriesIndex] = Math.Min(marketSeries.LowPrices[seriesIndex], Math.Min(_openPrices[seriesIndex], _closePrices[seriesIndex]));
             }
         }
 
@@ -289,19 +281,19 @@ namespace cAlgo.API.Extensions.Series
             double barMaLow = GetSeriesMovingAverageValue(marketSeries, SeriesType.Low, maPeriods, maType, seriesIndex);
             double barMaClose = GetSeriesMovingAverageValue(marketSeries, SeriesType.Close, maPeriods, maType, seriesIndex);
 
-            _close[seriesIndex] = (barMaOpen + barMaClose + barMaHigh + barMaLow) / 4;
+            _closePrices[seriesIndex] = (barMaOpen + barMaClose + barMaHigh + barMaLow) / 4;
 
-            if (seriesIndex < periods || double.IsNaN(_open[seriesIndex - 1]))
+            if (seriesIndex < periods || double.IsNaN(_openPrices[seriesIndex - 1]))
             {
-                _open[seriesIndex] = (barMaOpen + barMaClose) / 2;
-                _high[seriesIndex] = barMaHigh;
-                _low[seriesIndex] = barMaLow;
+                _openPrices[seriesIndex] = (barMaOpen + barMaClose) / 2;
+                _highPrices[seriesIndex] = barMaHigh;
+                _lowPrices[seriesIndex] = barMaLow;
             }
             else
             {
-                _open[seriesIndex] = (_open[seriesIndex - periods] + _close[seriesIndex - periods]) / 2;
-                _high[seriesIndex] = Math.Max(barMaHigh, Math.Max(_open[seriesIndex], _close[seriesIndex]));
-                _low[seriesIndex] = Math.Min(barMaLow, Math.Min(_open[seriesIndex], _close[seriesIndex]));
+                _openPrices[seriesIndex] = (_openPrices[seriesIndex - periods] + _closePrices[seriesIndex - periods]) / 2;
+                _highPrices[seriesIndex] = Math.Max(barMaHigh, Math.Max(_openPrices[seriesIndex], _closePrices[seriesIndex]));
+                _lowPrices[seriesIndex] = Math.Min(barMaLow, Math.Min(_openPrices[seriesIndex], _closePrices[seriesIndex]));
             }
         }
 
@@ -315,10 +307,7 @@ namespace cAlgo.API.Extensions.Series
             return ma.Result[index];
         }
 
-        public Bar Last(int index)
-        {
-            throw new NotImplementedException();
-        }
+        public Bar Last(int index) => _bars[_bars.Keys.Max() - index];
 
         public int LoadMoreHistory()
         {
@@ -335,15 +324,9 @@ namespace cAlgo.API.Extensions.Series
             throw new NotImplementedException();
         }
 
-        public IEnumerator<Bar> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerator<Bar> GetEnumerator() => _bars.Values.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion Methods
     }

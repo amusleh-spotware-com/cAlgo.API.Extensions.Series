@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="cAlgo.API">
-      <HintPath>..\..\..\Documents\cAlgo\API\cAlgo.API.dll</HintPath>
+      <HintPath>..\..\..\..\Documents\cAlgo\API\cAlgo.API.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,10 +52,10 @@
     <Compile Include="Helpers\MarketSeriesExtensions.cs" />
     <Compile Include="Helpers\SymbolExtensions.cs" />
     <Compile Include="Helpers\TimeFrameExtensions.cs" />
-    <Compile Include="IndicatorMarketSeries.cs" />
+    <Compile Include="IndicatorBars.cs" />
     <Compile Include="IndicatorTimeSeries.cs" />
-    <Compile Include="RangeMarketSeries.cs" />
-    <Compile Include="RenkoMarketSeries.cs" />
+    <Compile Include="RangeBars.cs" />
+    <Compile Include="RenkoBars.cs" />
     <Compile Include="Models\OhlcBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

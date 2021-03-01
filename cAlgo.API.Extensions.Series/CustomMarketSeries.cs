@@ -5,7 +5,7 @@ using System;
 
 namespace cAlgo.API.Extensions.Series
 {
-    public class CustomMarketSeries : IndicatorMarketSeries
+    public class CustomMarketSeries : IndicatorBars
     {
         #region Fields
 

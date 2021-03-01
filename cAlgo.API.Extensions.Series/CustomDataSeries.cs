@@ -28,10 +28,7 @@ namespace cAlgo.API.Extensions.Series
 
         public int Count => _data.Count;
 
-        public IEnumerator<double> GetEnumerator()
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerator<double> GetEnumerator() => _data.Values.GetEnumerator();
 
         public double Last(int lastIndex)
         {
@@ -40,9 +37,6 @@ namespace cAlgo.API.Extensions.Series
             return this[index];
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new System.NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
