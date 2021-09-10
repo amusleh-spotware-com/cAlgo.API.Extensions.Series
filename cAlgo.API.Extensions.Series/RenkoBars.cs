@@ -8,40 +8,26 @@ namespace cAlgo.API.Extensions.Series
 {
     public class RenkoBars : IndicatorBars
     {
-        #region Fields
-
         private readonly Symbol _symbol;
         private readonly decimal _size;
         private readonly decimal _doubleSize;
 
         private double _lastPrice;
 
-        #endregion Fields
-
         public RenkoBars(double sizeInPips, Symbol symbol, Algo algo) : base(TimeFrame.Minute, symbol.Name, new IndicatorTimeSeries(), algo)
         {
             _symbol = symbol;
+
+            _symbol.Tick += Symbol_Tick;
 
             _size = Convert.ToDecimal(sizeInPips * _symbol.PipSize);
 
             _doubleSize = _size * 2;
         }
 
-        #region Delegates
-
-        public delegate void OnBarHandler(object sender, OhlcBar newBar, OhlcBar oldBar);
-
-        #endregion Delegates
-
-        #region Events
-
         public event OnBarHandler OnBar;
 
-        #endregion Events
-
-        #region Methods
-
-        public void OnTick()
+        private void Symbol_Tick(SymbolTickEventArgs obj)
         {
             double price = _symbol.Bid;
 
@@ -110,7 +96,5 @@ namespace cAlgo.API.Extensions.Series
                 OnBar?.Invoke(this, newBar, this.GetBar(Index - 1));
             }
         }
-
-        #endregion Methods
     }
 }

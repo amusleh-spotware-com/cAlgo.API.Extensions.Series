@@ -10,6 +10,8 @@ using System.Linq;
 
 namespace cAlgo.API.Extensions.Series
 {
+    public delegate void OnBarHandler(object sender, OhlcBar newBar, OhlcBar oldBar);
+
     public class IndicatorBars : Bars
     {
         #region Fields

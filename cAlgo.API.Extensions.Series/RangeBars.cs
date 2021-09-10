@@ -8,38 +8,24 @@ namespace cAlgo.API.Extensions.Series
 {
     public class RangeBars : IndicatorBars
     {
-        #region Fields
-
         private readonly Symbol _symbol;
 
         private readonly double _size;
 
         private double _previousBidPrice;
 
-        #endregion Fields
-
         public RangeBars(double sizeInPips, Symbol symbol, Algo algo) : base(TimeFrame.Minute, symbol.Name, new IndicatorTimeSeries(), algo)
         {
             _symbol = symbol;
 
+            _symbol.Tick += Symbol_Tick;
+
             _size = sizeInPips * _symbol.PipSize;
         }
 
-        #region Delegates
-
-        public delegate void OnBarHandler(object sender, OhlcBar newBar, OhlcBar oldBar);
-
-        #endregion Delegates
-
-        #region Events
-
         public event OnBarHandler OnBar;
 
-        #endregion Events
-
-        #region Methods
-
-        public void OnTick()
+        private void Symbol_Tick(SymbolTickEventArgs obj)
         {
             double price = _symbol.Bid;
 
@@ -86,7 +72,5 @@ namespace cAlgo.API.Extensions.Series
                 Insert(Index, price, SeriesType.Low);
             }
         }
-
-        #endregion Methods
     }
 }
