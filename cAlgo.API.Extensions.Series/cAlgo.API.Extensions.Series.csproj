@@ -47,7 +47,6 @@
     <Compile Include="Enums\BarType.cs" />
     <Compile Include="Enums\SeriesType.cs" />
     <Compile Include="CustomDataSeries.cs" />
-    <Compile Include="CustomMarketSeries.cs" />
     <Compile Include="Helpers\DataSeriesExtensions.cs" />
     <Compile Include="Helpers\MarketSeriesExtensions.cs" />
     <Compile Include="Helpers\SymbolExtensions.cs" />

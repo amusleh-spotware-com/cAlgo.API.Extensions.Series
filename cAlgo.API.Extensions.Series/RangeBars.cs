@@ -43,10 +43,7 @@ namespace cAlgo.API.Extensions.Series
         {
             double price = _symbol.Bid;
 
-            if (price == _previousBidPrice)
-            {
-                return;
-            }
+            if (price == _previousBidPrice || (Count == 0 && price % _size > 0)) return;
 
             _previousBidPrice = price;
 

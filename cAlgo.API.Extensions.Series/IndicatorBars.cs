@@ -52,24 +52,6 @@ namespace cAlgo.API.Extensions.Series
 
         #region Constructor
 
-        public IndicatorBars(TimeFrame timeFrame, string symbolName)
-        {
-            _openPrices = new CustomDataSeries();
-            _closePrices = new CustomDataSeries();
-            _highPrices = new CustomDataSeries();
-            _lowPrices = new CustomDataSeries();
-            _tickVolumes = new CustomDataSeries();
-            _medianPrices = new CustomDataSeries();
-            _typicalPrices = new CustomDataSeries();
-            _weightedPrices = new CustomDataSeries();
-
-            _openTimes = new IndicatorTimeSeries();
-
-            _timeFrame = timeFrame;
-
-            _symbolName = symbolName;
-        }
-
         public IndicatorBars(TimeFrame timeFrame, string symbolName, Algo algo) : this(timeFrame, symbolName, new IndicatorTimeSeries(), algo)
         {
         }
@@ -78,20 +60,20 @@ namespace cAlgo.API.Extensions.Series
         {
             _algo = algo;
 
-            _openPrices = algo.CreateDataSeries();
-            _closePrices = algo.CreateDataSeries();
-            _highPrices = algo.CreateDataSeries();
-            _lowPrices = algo.CreateDataSeries();
-            _tickVolumes = algo.CreateDataSeries();
-            _medianPrices = algo.CreateDataSeries();
-            _typicalPrices = algo.CreateDataSeries();
-            _weightedPrices = algo.CreateDataSeries();
-
             _openTimes = timeSeries;
 
             _timeFrame = timeFrame;
 
             _symbolName = symbolName;
+
+            _openPrices = new CustomDataSeries();
+            _closePrices = new CustomDataSeries();
+            _highPrices = new CustomDataSeries();
+            _lowPrices = new CustomDataSeries();
+            _tickVolumes = new CustomDataSeries();
+            _medianPrices = new CustomDataSeries();
+            _typicalPrices = new CustomDataSeries();
+            _weightedPrices = new CustomDataSeries();
         }
 
         #endregion Constructor
